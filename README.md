@@ -1,69 +1,176 @@
-Self-Learning Platform
-A Django-based self-learning platform with REST API, JWT authentication, and PostgreSQL database.
+# Платформа для самообучения
 
-Prerequisites
-Python 3.8+
-PostgreSQL
-Git
-Installation
-Clone the repository:
-bash
+Веб-платформа для самостоятельного обучения, позволяющая создавать, управлять и проходить образовательные курсы с
+ролевым доступом (администратор, преподаватель, студент). Реализована на **Django REST Framework** (бэкенд) и **React
+** (фронтенд) с мощным API для управления курсами и интерактивного тестирования.
 
-Copy
-git clone <repository-url>
-cd self_learning
-Create a virtual environment and activate it:
-bash
+## Описание
 
-Copy
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-Install dependencies:
-bash
+Платформа предоставляет удобный инструмент для создания образовательного контента и его использования. Поддерживает
+безопасную аутентификацию, управление курсами и автоматическую проверку тестов, а также интерактивную документацию API
+через Swagger.
 
-Copy
-pip install -r requirements.txt
-Configure the database in self_learning/settings.py:
-python
+## Особенности
 
-Copy
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'self_learning_db',
-        'USER': 'your-username',
-        'PASSWORD': 'your-password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-Apply migrations:
-bash
+- **Аутентификация**: Безопасная авторизация с использованием JWT-токенов.
+- **Управление курсами**: Создание, просмотр, обновление и удаление разделов, материалов и тестов через API или
+  админ-панель.
+- **Тестирование знаний**: Отправка ответов на тесты с автоматической оценкой результатов.
+- **Ролевой доступ**:
+    - *Администраторы*: Полный контроль над содержимым и пользователями.
+    - *Преподаватели*: Создание и управление собственным контентом.
+    - *Студенты*: Доступ к материалам и прохождение тестов.
+- **Документация API**: Интерактивный интерфейс Swagger для изучения эндпоинтов.
+- **Тестирование**: Автоматизированные тесты с покрытием кода более 75%.
 
-Copy
-python manage.py migrate
-Create a superuser:
-bash
+## Технологии
 
-Copy
-python manage.py createsuperuser
-Run the development server:
-bash
+### Бэкенд
 
-Copy
-python manage.py runserver
-API Documentation
-Access the Swagger UI at http://localhost:8000/swagger/.
+- Django 4.2.7
+- Django REST Framework 3.14.0
+- PostgreSQL
+- JWT-аутентификация (djangorestframework-simplejwt)
+- Swagger (drf-yasg)
+- CORS (django-cors-headers)
 
-Testing
-Run tests with:
+### Фронтенд
 
-bash
+- React (в стадии разработки, минимальная реализация)
+- Axios для запросов к API
 
-Copy
-python manage.py test
-Project Structure
-users/: User management and authentication.
-courses/: Course content management (sections, materials, tests).
-self_learning/: Project settings and URLs.
-Show in sidebar
+### Инструменты
+
+- Python 3.8+
+- Node.js 16+ (для фронтенда)
+- Git
+
+## Требования
+
+- Python 3.8+
+- PostgreSQL
+- Node.js 16+ (для фронтенда)
+- Git
+
+## Установка
+
+### Бэкенд
+
+1. Клонируйте репозиторий:
+   ```bash
+   git clone <URL-репозитория>
+   cd self_learning_project
+   ```
+2. Создайте и активируйте виртуальное окружение:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # macOS/Linux
+   .\venv\Scripts\activate  # Windows
+   ```
+3. Установите зависимости:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Настройте PostgreSQL:
+    - Создайте базу данных:
+      ```bash
+      psql -U postgres
+      CREATE DATABASE self_learning_db;
+      \q
+      ```
+    - Обновите файл `SelfLearning/settings.py` с вашими учетными данными:
+      ```python
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.postgresql',
+              'NAME': 'self_learning_db',
+              'USER': 'postgres',
+              'PASSWORD': 'ваш-пароль',
+              'HOST': 'localhost',
+              'PORT': '5432',
+          }
+      }
+      ```
+5. Примените миграции:
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+6. Создайте суперпользователя:
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+### Фронтенд
+
+1. Перейдите в директорию фронтенда:
+   ```bash
+   cd frontend
+   ```
+2. Установите зависимости:
+   ```bash
+   npm install
+   ```
+3. Запустите сервер разработки:
+   ```bash
+   npm start
+   ```
+   Фронтенд будет доступен по адресу `http://localhost:3000`.
+
+## Использование
+
+1. Запустите сервер бэкенда:
+   ```bash
+   python manage.py runserver
+   ```
+    - Админ-панель: `http://localhost:8000/admin/`
+    - Документация API: `http://localhost:8000/swagger/`
+
+2. Запустите фронтенд:
+   ```bash
+   cd frontend
+   npm start
+   ```
+   Откройте `http://localhost:3000` для взаимодействия с платформой.
+
+3. Протестируйте API:
+    - Получите JWT-токен:
+      ```bash
+      curl -X POST http://localhost:8000/api/token/ -d "username=<имя-пользователя>&password=<пароль>"
+      ```
+    - Доступ к защищённым эндпоинтам (например, разделы):
+      ```bash
+      curl -H "Authorization: Bearer <access-токен>" http://localhost:8000/api/sections/
+      ```
+
+## Документация API
+
+Изучите доступные эндпоинты через Swagger по адресу `http://localhost:8000/swagger/`. Для авторизации используйте
+JWT-токен в формате `Bearer <токен>` (доступно через кнопку Authorize).
+
+## Тестирование
+
+1. Запустите автоматизированные тесты:
+   ```bash
+   python manage.py test
+   ```
+2. Проверьте покрытие кода:
+   ```bash
+   pip install coverage
+   coverage run manage.py test
+   coverage report
+   ```
+   Покрытие кода поддерживается выше 75%.
+
+## Структура проекта
+
+```
+self_learning_project/
+├── SelfLearning/           # Настройки и маршруты Django
+├── users/                 # Управление пользователями и аутентификация
+├── courses/               # Управление образовательным контентом (разделы, материалы, тесты)
+├── frontend/              # Фронтенд на React
+├── manage.py              # Скрипт управления Django
+├── requirements.txt       # Зависимости бэкенда
+├── README.md              # Документация проекта
+```
