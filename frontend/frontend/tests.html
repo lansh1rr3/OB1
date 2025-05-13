@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests - Self-Learning Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Tests</h1>
+    <button onclick="logout()">Logout</button>
+    <h2>Available Tests</h2>
+    <ul id="tests-list"></ul>
+    <h2>Submit Answer</h2>
+    <form id="test-form">
+        <div class="form-group">
+            <label for="test-id">Test ID:</label>
+            <input type="number" id="test-id" required>
+        </div>
+        <div class="form-group">
+            <label for="answer">Answer:</label>
+            <input type="text" id="answer" required>
+        </div>
+        <button type="submit">Submit Answer</button>
+        <p id="test-error" class="error"></p>
+    </form>
+</div>
+<script src="script.js"></script>
+<script>
+    // Загрузка тестов
+    async function loadTests() {
+        const token = localStorage.getItem('token');
+        const testsList = document.getElementById('tests-list');
+        try {
+            const response = await fetch('http://localhost:8000/api/tests/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) throw new Error('Failed to fetch tests');
+            const tests = await response.json();
+            testsList.innerHTML = '';
+            tests.forEach(test => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${test.id}, Question: ${test.question}`;
+                testsList.appendChild(li);
+            });
+        } catch (err) {
+            testsList.innerHTML = `<p class="error">${err.message}</p>`;
+        }
+    }
+
+    // Отправка ответа на тест
+    document.getElementById('test-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const testId = document.getElementById('test-id').value;
+        const answer = document.getElementById('answer').value;
+        const errorEl = document.getElementById('test-error');
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/tests/${testId}/submit_answer/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ answer }),
+            });
+            if (!response.ok) throw new Error('Failed to submit answer');
+            document.getElementById('test-form').reset();
+            errorEl.textContent = 'Answer submitted successfully!';
+        } catch (err) {
+            errorEl.textContent = err.message;
+        }
+    });
+
+    // Загрузка тестов при открытии страницы
+    loadTests();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Learning Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Welcome to Self-Learning Platform</h1>
+    <p>Checking authentication...</p>
+</div>
+<script src="script.js"></script>
+<script>
+    // Перенаправление на основе наличия токена
+    const token = localStorage.getItem('token');
+    if (token) {
+        window.location.href = 'sections.html';
+    } else {
+        window.location.href = 'login.html';
+    }
+</script>
+</body>
+</html>

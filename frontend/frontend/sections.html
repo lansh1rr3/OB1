@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sections - Self-Learning Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Sections</h1>
+    <button onclick="logout()">Logout</button>
+    <h2>Create New Section</h2>
+    <form id="section-form">
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description"></textarea>
+        </div>
+        <button type="submit">Create Section</button>
+        <p id="section-error" class="error"></p>
+    </form>
+    <h2>Existing Sections</h2>
+    <ul id="sections-list"></ul>
+</div>
+<script src="script.js"></script>
+<script>
+    // Загрузка разделов
+    async function loadSections() {
+        const token = localStorage.getItem('token');
+        const sectionsList = document.getElementById('sections-list');
+        try {
+            const response = await fetch('http://localhost:8000/api/sections/', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) throw new Error('Failed to fetch sections');
+            const sections = await response.json();
+            sectionsList.innerHTML = '';
+            sections.forEach(section => {
+                const li = document.createElement('li');
+                li.textContent = `${section.title}: ${section.description}`;
+                sectionsList.appendChild(li);
+            });
+        } catch (err) {
+            sectionsList.innerHTML = `<p class="error">${err.message}</p>`;
+        }
+    }
+
+    // Создание раздела
+    document.getElementById('section-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const title = document.getElementById('title').value;
+        const description = document.getElementById('description').value;
+        const errorEl = document.getElementById('section-error');
+
+        try {
+            const response = await fetch('http://localhost:8000/api/sections/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ title, description }),
+            });
+            if (!response.ok) throw new Error('Failed to create section');
+            document.getElementById('section-form').reset();
+            errorEl.textContent = 'Section created successfully!';
+            loadSections();
+        } catch (err) {
+            errorEl.textContent = err.message;
+        }
+    });
+
+    // Загрузка разделов при открытии страницы
+    loadSections();
+</script>
+</body>
+</html>
