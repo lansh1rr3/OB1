@@ -11,16 +11,16 @@ class SectionSerializer(serializers.ModelSerializer):
 class MaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Material
-        fields = ['id', 'section', 'title', 'content', 'created_by']
+        fields = ['id', 'title', 'section', 'created_by']
 
 
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test
-        fields = ['id', 'material', 'question', 'correct_answer', 'created_by']
+        fields = ['id', 'title', 'section', 'created_by']
 
 
 class TestResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestResult
-        fields = ['id', 'test', 'student', 'answer', 'is_correct', 'submitted_at']
+        fields = ['id', 'test', 'student', 'answer', 'score']

@@ -1,31 +1,33 @@
-from django.test import TestCase
-from rest_framework.test import APIClient
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
 from users.models import CustomUser
-from .models import Section, Material, Test, TestResult
+from courses.models import Section, Material, Test, TestResult
 
 
-class CourseTests(TestCase):
+class CourseTests(APITestCase):
     def setUp(self):
-        self.client = APIClient()
-        self.admin = CustomUser.objects.create_user(username='admin', password='admin123', role='admin')
-        self.teacher = CustomUser.objects.create_user(username='teacher', password='teacher123', role='teacher')
-        self.student = CustomUser.objects.create_user(username='student', password='student123', role='student')
-        self.section = Section.objects.create(title='Test Section', created_by=self.teacher)
-        self.material = Material.objects.create(section=self.section, title='Test Material', content='Content',
-                                                created_by=self.teacher)
-        self.test = Test.objects.create(material=self.material, question='What?', correct_answer='Answer',
-                                        created_by=self.teacher)
+        self.teacher = CustomUser.objects.create_user(
+            username='teacher', password='testpass', role='teacher'
+        )
+        self.student = CustomUser.objects.create_user(
+            username='student', password='testpass', role='student'
+        )
+        self.token = AccessToken.for_user(self.teacher)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token}')
+        self.section = Section.objects.create(title="Test Section", description="Description", created_by=self.teacher)
+        self.material = Material.objects.create(title="Test Material", section=self.section, created_by=self.teacher)
+        self.test = Test.objects.create(title="Test", section=self.section, created_by=self.teacher)
 
     def test_create_section_as_teacher(self):
-        self.client.login(username='teacher', password='teacher123')
-        response = self.client.post('/api/sections/',
-                                    {'title': 'New Section', 'description': 'Desc', 'created_by': self.teacher.id})
+        url = reverse('section-list')
+        data = {'title': 'New Section', 'description': 'Description'}
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_submit_test_answer(self):
-        self.client.login(username='student', password='student123')
-        response = self.client.post(f'/api/tests/{self.test.id}/submit_answer/', {'answer': 'Answer'})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(TestResult.objects.filter(student=self.student, is_correct=True).exists())
+        url = reverse('testresult-list')
+        data = {'test': self.test.id, 'student': self.student.id, 'answer': 'Answer', 'score': 0}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
